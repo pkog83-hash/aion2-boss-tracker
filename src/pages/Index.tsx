@@ -1,14 +1,24 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from 'react';
+import { GroupSelector } from "@/components/GroupSelector";
+import { BossTracker } from "@/components/BossTracker";
+import { GroupConfig } from "@/types/boss";
 
 const Index = () => {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
-    </div>
-  );
+  const [selectedGroup, setSelectedGroup] = useState<GroupConfig | null>(null);
+
+  const handleSelectGroup = (groupConfig: GroupConfig) => {
+    setSelectedGroup(groupConfig);
+  };
+
+  const handleBack = () => {
+    setSelectedGroup(null);
+  };
+
+  if (selectedGroup) {
+    return <BossTracker groupConfig={selectedGroup} onBack={handleBack} />;
+  }
+
+  return <GroupSelector onSelectGroup={handleSelectGroup} />;
 };
 
 export default Index;

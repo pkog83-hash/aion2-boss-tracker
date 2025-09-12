@@ -57,6 +57,24 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        // 天堂2M 群組主題色彩
+        groups: {
+          erika1: "hsl(var(--erika1))",
+          erika2: "hsl(var(--erika2))",
+          erika3: "hsl(var(--erika3))",
+          erika4: "hsl(var(--erika4))",
+          erika5: "hsl(var(--erika5))",
+          erika6: "hsl(var(--erika6))",
+          leonard5: "hsl(var(--leonard5))",
+          dragon1: "hsl(var(--dragon1))",
+          dragon2: "hsl(var(--dragon2))",
+        },
+        // Boss 狀態色彩
+        boss: {
+          alive: "hsl(var(--boss-alive))",
+          dead: "hsl(var(--boss-dead))",
+          respawning: "hsl(var(--boss-respawning))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
