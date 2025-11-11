@@ -5,7 +5,8 @@ import { defaultBossData } from '@/data/bossData'
 export class BossDataService {
   private groupName: string
   private tableName = 'boss_tracker_data'
-  
+  private syncLock: Promise<boolean> | null = null
+
   constructor(groupName: string) {
     this.groupName = groupName
   }
@@ -130,40 +131,65 @@ export class BossDataService {
   }
 
   /**
-   * Sync data to cloud (Supabase)
+   * Sync data to cloud (Supabase) with optimistic locking to prevent race conditions
    */
   private async syncToCloud(bossData: BossData): Promise<boolean> {
     if (!useCloud || !supabase) return false
 
+    // Prevent concurrent sync operations (optimistic locking)
+    if (this.syncLock) {
+      console.log('Sync already in progress, waiting...')
+      await this.syncLock
+    }
+
+    // Create new sync promise
+    this.syncLock = this.performSync(bossData)
+
     try {
-      // Delete existing records for this group
-      const { error: deleteError } = await supabase
-        .from(this.tableName)
-        .delete()
-        .eq('group_name', this.groupName)
+      const result = await this.syncLock
+      return result
+    } finally {
+      this.syncLock = null
+    }
+  }
 
-      if (deleteError) throw deleteError
+  /**
+   * Perform actual sync using UPSERT strategy
+   */
+  private async performSync(bossData: BossData): Promise<boolean> {
+    if (!supabase) return false
 
-      // Insert new records
+    try {
       const records: Omit<BossRecord, 'id' | 'created_at'>[] = []
+      const now = new Date().toISOString()
+
       for (const [bossName, bossInfo] of Object.entries(bossData)) {
         records.push({
           group_name: this.groupName,
           boss_name: bossName,
           respawn_minutes: bossInfo.respawnMinutes,
           last_killed: bossInfo.lastKilled,
-          updated_at: new Date().toISOString()
+          updated_at: now
         })
       }
 
-      if (records.length > 0) {
-        const { error: insertError } = await supabase
-          .from(this.tableName)
-          .insert(records)
+      if (records.length === 0) return true
 
-        if (insertError) throw insertError
+      // Use UPSERT (insert or update) instead of delete + insert
+      // This prevents data loss during concurrent operations
+      const { error } = await supabase
+        .from(this.tableName)
+        .upsert(records, {
+          onConflict: 'group_name,boss_name',
+          ignoreDuplicates: false
+        })
+
+      if (error) {
+        console.error('Upsert error:', error)
+        throw error
       }
 
+      console.log(`✅ Synced ${records.length} bosses to cloud for group: ${this.groupName}`)
       return true
     } catch (error) {
       console.error('Failed to sync to cloud:', error)
