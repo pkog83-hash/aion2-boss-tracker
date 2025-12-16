@@ -8,9 +8,7 @@ interface GroupSelectorProps {
 }
 
 export const GroupSelector = ({ onSelectGroup }: GroupSelectorProps) => {
-  const erikaGroups = Object.entries(GROUPS).filter(([key]) => key.startsWith("艾瑞卡"));
-  const leonardGroups = Object.entries(GROUPS).filter(([key]) => key.startsWith("黎歐納"));
-  const dragonGroups = Object.entries(GROUPS).filter(([key]) => key.startsWith("猛龍"));
+  const allGroups = Object.entries(GROUPS);
 
   const renderGroupSection = (title: string, groups: [string, GroupConfig][], sectionClass: string) => (
     <div className={`space-y-4 ${sectionClass}`}>
@@ -48,22 +46,16 @@ export const GroupSelector = ({ onSelectGroup }: GroupSelectorProps) => {
         {/* 主標題 */}
         <div className="text-center mb-12">
           <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-            🐉 天堂2M Boss追蹤器
+            ⚔️ AION2 Boss追蹤器
           </h1>
           <p className="text-xl text-muted-foreground">
-            選擇你的伺服器群組開始追蹤Boss重生時間
+            選擇你的伺服器開始追蹤Boss重生時間
           </p>
         </div>
 
         <div className="space-y-16">
-          {/* 艾瑞卡伺服器 */}
-          {renderGroupSection("🏰 艾瑞卡伺服器", erikaGroups, "mb-16")}
-          
-          {/* 黎歐納伺服器 */}
-          {renderGroupSection("⭐ 黎歐納伺服器", leonardGroups, "mb-16")}
-          
-          {/* 猛龍伺服器 */}
-          {renderGroupSection("🐲 猛龍伺服器", dragonGroups, "")}
+          {/* 布里特拉伺服器 */}
+          {renderGroupSection("⚔️ 布里特拉伺服器", allGroups, "")}
         </div>
 
         {/* 使用說明 */}
